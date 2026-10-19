@@ -1,0 +1,66 @@
+@startuml nesne_diyagrami_sade
+title Kütüphane Otomasyonu - Nesne Diyagramı (Sade)\nÖrnek an: Ayşe Demir 1984 kitabını 5 gün gecikmeli iade etti
+skinparam dpi 150
+skinparam objectFontStyle bold
+
+object "uye1 : Uye" as uye1 {
+  Id = 2
+  TcNo = "22222222222"
+  Ad = "Ayşe"
+  Soyad = "Demir"
+  Aktif = true
+}
+
+object "personel1 : Personel" as personel1 {
+  Id = 2
+  Ad = "Fatma"
+  Soyad = "Şahin"
+  Rol = "Görevli"
+}
+
+object "kitap1 : Kitap" as kitap1 {
+  Id = 5
+  Ad = "1984"
+  Stok = 4
+  Mevcut = 4
+}
+
+object "yazar1 : Yazar" as yazar1 {
+  Id = 3
+  Ad = "George"
+  Soyad = "Orwell"
+}
+
+object "kategori1 : Kategori" as kategori1 {
+  Id = 1
+  Ad = "Roman"
+}
+
+object "yayinevi1 : Yayinevi" as yayinevi1 {
+  Id = 2
+  Ad = "Can Yayınları"
+}
+
+object "odunc1 : OduncIslemi" as odunc1 {
+  Id = 2
+  OduncTarihi = 27.09.2026
+  SonTeslimTarihi = 12.10.2026
+  IadeTarihi = 17.10.2026
+}
+
+object "ceza1 : Ceza" as ceza1 {
+  Id = 2
+  GecikmeGunu = 5
+  Tutar = 25.00
+  Odendi = false
+}
+
+odunc1 --> kitap1 : kitap
+odunc1 --> uye1 : üye
+odunc1 --> personel1 : personel
+kitap1 --> yazar1 : yazar
+kitap1 --> kategori1 : kategori
+kitap1 --> yayinevi1 : yayınevi
+ceza1 --> odunc1 : ödünç
+ceza1 --> uye1 : üye
+@enduml

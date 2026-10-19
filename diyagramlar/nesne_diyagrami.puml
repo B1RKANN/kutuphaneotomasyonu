@@ -1,0 +1,179 @@
+@startuml nesne_diyagrami
+title Kütüphane Otomasyonu - Nesne (Object) Diyagramı\n(Örnek an: Ayşe Demir'in 1984 kitabını gecikmeli iade etmesi)
+skinparam dpi 150
+skinparam objectFontStyle bold
+
+object "personel1 : Personel" as personel1 {
+  Id = 2
+  TcNo = "66666666666"
+  Ad = "Fatma"
+  Soyad = "Şahin"
+  Telefon = "05326666666"
+  Eposta = "fatma@kutuphane.com"
+  KullaniciAdi = "gorevli"
+  Sifre = "****"
+  Rol = "Görevli"
+}
+
+object "yonetici : Personel" as yonetici {
+  Id = 1
+  Ad = "Ali"
+  Soyad = "Veli"
+  KullaniciAdi = "admin"
+  Rol = "Yönetici"
+}
+
+object "uye1 : Uye" as uye1 {
+  Id = 2
+  TcNo = "22222222222"
+  Ad = "Ayşe"
+  Soyad = "Demir"
+  Telefon = "05322222222"
+  Eposta = "ayse@mail.com"
+  Adres = "İstanbul"
+  KayitTarihi = 18.08.2026
+  Aktif = true
+}
+
+object "uye2 : Uye" as uye2 {
+  Id = 1
+  TcNo = "11111111111"
+  Ad = "Ahmet"
+  Soyad = "Yılmaz"
+  Aktif = true
+}
+
+object "yazar1 : Yazar" as yazar1 {
+  Id = 3
+  Ad = "George"
+  Soyad = "Orwell"
+  Ulke = "İngiltere"
+  DogumYili = 1903
+}
+
+object "yazar2 : Yazar" as yazar2 {
+  Id = 2
+  Ad = "Sabahattin"
+  Soyad = "Ali"
+  Ulke = "Türkiye"
+  DogumYili = 1907
+}
+
+object "kategori1 : Kategori" as kategori1 {
+  Id = 1
+  Ad = "Roman"
+  Aciklama = "Yerli ve yabancı romanlar"
+}
+
+object "yayinevi1 : Yayinevi" as yayinevi1 {
+  Id = 2
+  Ad = "Can Yayınları"
+  Telefon = "02122525675"
+  Adres = "İstanbul"
+}
+
+object "yayinevi2 : Yayinevi" as yayinevi2 {
+  Id = 1
+  Ad = "Yapı Kredi Yayınları"
+  Adres = "İstanbul"
+}
+
+object "kitap1 : Kitap" as kitap1 {
+  Id = 5
+  Isbn = "9789750800058"
+  Ad = "1984"
+  YazarId = 3
+  KategoriId = 1
+  YayineviId = 2
+  BasimYili = 1949
+  SayfaSayisi = 352
+  Stok = 4
+  Mevcut = 4
+  RafNo = "B-01"
+}
+
+object "kitap2 : Kitap" as kitap2 {
+  Id = 1
+  Isbn = "9789750800010"
+  Ad = "Kürk Mantolu Madonna"
+  YazarId = 2
+  KategoriId = 1
+  YayineviId = 1
+  Stok = 3
+  Mevcut = 2
+  RafNo = "A-01"
+}
+
+object "odunc1 : OduncIslemi" as odunc1 {
+  Id = 2
+  KitapId = 5
+  UyeId = 2
+  PersonelId = 2
+  OduncTarihi = 27.09.2026
+  SonTeslimTarihi = 12.10.2026
+  IadeTarihi = 17.10.2026
+  IadeEdildiMi = true
+}
+
+object "odunc2 : OduncIslemi" as odunc2 {
+  Id = 1
+  KitapId = 1
+  UyeId = 1
+  PersonelId = 1
+  OduncTarihi = 12.10.2026
+  SonTeslimTarihi = 27.10.2026
+  IadeTarihi = null
+  IadeEdildiMi = false
+}
+
+object "ceza1 : Ceza" as ceza1 {
+  Id = 2
+  OduncId = 2
+  UyeId = 2
+  GecikmeGunu = 5
+  Tutar = 25.00 TL
+  Odendi = false
+  OdemeTarihi = null
+}
+
+object "oduncServisi : OduncServisi" as servis {
+  MaksimumKitapSayisi = 3
+  OduncGunSayisi = 15
+  GunlukCezaTutari = 5
+}
+
+object "girisServisi : GirisServisi" as giris {
+  AktifPersonel = personel1
+}
+
+object "oduncRepository : OduncRepository" as orepo
+object "cezaRepository : CezaRepository" as crepo
+object "kitapRepository : KitapRepository" as krepo
+object "oduncForm : OduncForm" as oform
+
+kitap1 --> yazar1 : yazar
+kitap1 --> kategori1 : kategori
+kitap1 --> yayinevi1 : yayınevi
+kitap2 --> yazar2 : yazar
+kitap2 --> kategori1 : kategori
+kitap2 --> yayinevi2 : yayınevi
+
+odunc1 --> kitap1 : kitap
+odunc1 --> uye1 : üye
+odunc1 --> personel1 : personel
+odunc2 --> kitap2 : kitap
+odunc2 --> uye2 : üye
+odunc2 --> yonetici : personel
+
+ceza1 --> odunc1 : ödünç
+ceza1 --> uye1 : üye
+
+oform --> servis
+oform --> giris
+servis --> orepo
+servis --> crepo
+servis --> krepo
+orepo ..> odunc1 : IadeEt()
+crepo ..> ceza1 : Ekle()
+krepo ..> kitap1 : MevcutDegistir(+1)
+@enduml

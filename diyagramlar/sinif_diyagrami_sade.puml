@@ -1,0 +1,185 @@
+@startuml sinif_diyagrami_sade
+title Kütüphane Otomasyonu - Sınıf Diyagramı (Sade)
+skinparam classAttributeIconSize 0
+skinparam dpi 150
+skinparam packageStyle rectangle
+skinparam classFontStyle bold
+hide empty members
+
+package "Modeller" {
+  abstract class Kisi {
+    + Id : int
+    + TcNo : string
+    + Ad : string
+    + Soyad : string
+    + Telefon : string
+    + Eposta : string
+    + {abstract} KisiTuru() : string
+  }
+  class Uye {
+    + Adres : string
+    + KayitTarihi : DateTime
+    + Aktif : bool
+  }
+  class Personel {
+    + KullaniciAdi : string
+    + Sifre : string
+    + Rol : string
+  }
+  class Kitap {
+    + Id : int
+    + Isbn : string
+    + Ad : string
+    + Stok : int
+    + Mevcut : int
+    + RafNo : string
+    + OduncVerilebilirMi() : bool
+  }
+  class Yazar {
+    + Id : int
+    + Ad : string
+    + Soyad : string
+  }
+  class Kategori {
+    + Id : int
+    + Ad : string
+  }
+  class Yayinevi {
+    + Id : int
+    + Ad : string
+  }
+  class OduncIslemi {
+    + Id : int
+    + OduncTarihi : DateTime
+    + SonTeslimTarihi : DateTime
+    + IadeTarihi : DateTime?
+    + GecikmeGunu(tarih) : int
+  }
+  class Ceza {
+    + Id : int
+    + GecikmeGunu : int
+    + Tutar : decimal
+    + Odendi : bool
+  }
+  class KitapOkunma {
+    + KitapAdi : string
+    + OkunmaSayisi : int
+  }
+}
+
+package "Veri" {
+  interface "IRepository<T>" as IRepository {
+    + Ekle(T)
+    + Guncelle(T)
+    + Sil(id)
+    + Getir(id) : T
+    + TumunuGetir() : List<T>
+    + Ara(metin) : List<T>
+  }
+  class Veritabani <<static>> {
+    + BaglantiAc()
+    + BaglantiTest() : bool
+  }
+  class KategoriRepository
+  class YazarRepository
+  class YayineviRepository
+  class KitapRepository {
+    + MevcutDegistir(kitapId, miktar)
+  }
+  class UyeRepository {
+    + AktifUyeler()
+  }
+  class PersonelRepository {
+    + KullaniciAdiIleGetir(ad)
+  }
+  class OduncRepository {
+    + IadeEt(id, tarih)
+    + GecikenOduncler()
+  }
+  class CezaRepository {
+    + Ode(id)
+  }
+}
+
+package "Servisler" {
+  class GirisServisi {
+    + GirisYap(kullanici, sifre) : bool
+  }
+  class OduncServisi {
+    + OduncVer(kitapId, uyeId, personelId)
+    + IadeAl(oduncId) : decimal
+  }
+  class RaporServisi {
+    + GecikenKitaplar()
+    + EnCokOkunanKitaplar()
+  }
+}
+
+package "Formlar" {
+  abstract class KayitForm {
+    # {abstract} Listele()
+    # {abstract} Ekle()
+    # {abstract} Guncelle()
+    # {abstract} Sil(id)
+  }
+  class KategoriForm
+  class YazarForm
+  class YayineviForm
+  class KitapForm
+  class UyeForm
+  class PersonelForm
+  class GirisForm
+  class AnaForm
+  class OduncForm
+  class CezaForm
+  class RaporForm
+}
+
+class Program <<static>> {
+  - Main()
+}
+
+Kisi <|-- Uye
+Kisi <|-- Personel
+Kitap "*" --> "1" Yazar : yazar
+Kitap "*" --> "1" Kategori : kategori
+Kitap "*" --> "1" Yayinevi : yayınevi
+OduncIslemi "*" --> "1" Kitap : kitap
+OduncIslemi "*" --> "1" Uye : üye
+OduncIslemi "*" --> "1" Personel : personel
+Ceza "0..1" --> "1" OduncIslemi : ödünç
+Ceza "*" --> "1" Uye : üye
+
+IRepository <|.. KategoriRepository
+IRepository <|.. YazarRepository
+IRepository <|.. YayineviRepository
+IRepository <|.. KitapRepository
+IRepository <|.. UyeRepository
+IRepository <|.. PersonelRepository
+IRepository <|.. OduncRepository
+IRepository <|.. CezaRepository
+IRepository ..> Veritabani
+
+OduncServisi --> IRepository
+GirisServisi --> PersonelRepository
+RaporServisi --> OduncRepository
+
+KayitForm <|-- KategoriForm
+KayitForm <|-- YazarForm
+KayitForm <|-- YayineviForm
+KayitForm <|-- KitapForm
+KayitForm <|-- UyeForm
+KayitForm <|-- PersonelForm
+KayitForm --> IRepository
+
+GirisForm --> GirisServisi
+OduncForm --> OduncServisi
+RaporForm --> RaporServisi
+CezaForm --> CezaRepository
+AnaForm ..> KayitForm : açar
+AnaForm ..> OduncForm : açar
+AnaForm ..> CezaForm : açar
+AnaForm ..> RaporForm : açar
+Program ..> GirisForm
+Program ..> AnaForm
+@enduml

@@ -1,0 +1,543 @@
+@startuml sinif_diyagrami
+title Kütüphane Otomasyonu - Sınıf (Class) Diyagramı
+skinparam classAttributeIconSize 0
+skinparam dpi 150
+skinparam packageStyle rectangle
+skinparam classFontStyle bold
+skinparam nodesep 25
+skinparam ranksep 45
+
+package "Modeller" {
+  abstract class Kisi {
+    + Id : int
+    + TcNo : string
+    + Ad : string
+    + Soyad : string
+    + Telefon : string
+    + Eposta : string
+    + AdSoyad : string <<get>>
+    + {abstract} KisiTuru() : string
+    + ToString() : string
+  }
+
+  class Uye {
+    + Adres : string
+    + KayitTarihi : DateTime
+    + Aktif : bool
+    + KisiTuru() : string
+  }
+
+  class Personel {
+    + KullaniciAdi : string
+    + Sifre : string
+    + Rol : string
+    + YoneticiMi : bool <<get>>
+    + KisiTuru() : string
+  }
+
+  class Kategori {
+    + Id : int
+    + Ad : string
+    + Aciklama : string
+    + ToString() : string
+  }
+
+  class Yazar {
+    + Id : int
+    + Ad : string
+    + Soyad : string
+    + Ulke : string
+    + DogumYili : int
+    + AdSoyad : string <<get>>
+    + ToString() : string
+  }
+
+  class Yayinevi {
+    + Id : int
+    + Ad : string
+    + Telefon : string
+    + Adres : string
+    + ToString() : string
+  }
+
+  class Kitap {
+    + Id : int
+    + Isbn : string
+    + Ad : string
+    + YazarId : int
+    + KategoriId : int
+    + YayineviId : int
+    + BasimYili : int
+    + SayfaSayisi : int
+    + Stok : int
+    + Mevcut : int
+    + RafNo : string
+    + YazarAdi : string
+    + KategoriAdi : string
+    + YayineviAdi : string
+    + OduncVerilebilirMi() : bool
+    + ToString() : string
+  }
+
+  class OduncIslemi {
+    + Id : int
+    + KitapId : int
+    + UyeId : int
+    + PersonelId : int
+    + OduncTarihi : DateTime
+    + SonTeslimTarihi : DateTime
+    + IadeTarihi : DateTime?
+    + KitapAdi : string
+    + UyeAdi : string
+    + PersonelAdi : string
+    + IadeEdildiMi : bool <<get>>
+    + GecikmeGunu(tarih : DateTime) : int
+  }
+
+  class Ceza {
+    + Id : int
+    + OduncId : int
+    + UyeId : int
+    + GecikmeGunu : int
+    + Tutar : decimal
+    + Odendi : bool
+    + OdemeTarihi : DateTime?
+    + UyeAdi : string
+    + KitapAdi : string
+  }
+
+  class KitapOkunma {
+    + KitapAdi : string
+    + YazarAdi : string
+    + OkunmaSayisi : int
+  }
+}
+
+package "Arayuzler" {
+  interface "IRepository<T>" as IRepository {
+    + Ekle(nesne : T) : void
+    + Guncelle(nesne : T) : void
+    + Sil(id : int) : void
+    + Getir(id : int) : T
+    + TumunuGetir() : List<T>
+    + Ara(metin : string) : List<T>
+  }
+}
+
+package "Veri" {
+  class Veritabani <<static>> {
+    + {static} BaglantiCumlesi : string
+    + {static} BaglantiAc() : NpgsqlConnection
+    + {static} BaglantiTest() : bool
+    + {static} SayiGetir(sql : string) : int
+  }
+
+  class KategoriRepository {
+    + Ekle(kategori : Kategori) : void
+    + Guncelle(kategori : Kategori) : void
+    + Sil(id : int) : void
+    + Getir(id : int) : Kategori
+    + TumunuGetir() : List<Kategori>
+    + Ara(metin : string) : List<Kategori>
+  }
+
+  class YazarRepository {
+    + Ekle(yazar : Yazar) : void
+    + Guncelle(yazar : Yazar) : void
+    + Sil(id : int) : void
+    + Getir(id : int) : Yazar
+    + TumunuGetir() : List<Yazar>
+    + Ara(metin : string) : List<Yazar>
+    - ParametreEkle(komut, yazar : Yazar) : void
+  }
+
+  class YayineviRepository {
+    + Ekle(yayinevi : Yayinevi) : void
+    + Guncelle(yayinevi : Yayinevi) : void
+    + Sil(id : int) : void
+    + Getir(id : int) : Yayinevi
+    + TumunuGetir() : List<Yayinevi>
+    + Ara(metin : string) : List<Yayinevi>
+    - ParametreEkle(komut, yayinevi : Yayinevi) : void
+  }
+
+  class KitapRepository {
+    - SecimSorgusu : string
+    + Ekle(kitap : Kitap) : void
+    + Guncelle(kitap : Kitap) : void
+    + Sil(id : int) : void
+    + Getir(id : int) : Kitap
+    + TumunuGetir() : List<Kitap>
+    + Ara(metin : string) : List<Kitap>
+    + MevcutKitaplar() : List<Kitap>
+    + MevcutDegistir(kitapId : int, miktar : int) : void
+    - Listele(sql : string, deger : object) : List<Kitap>
+    - ParametreEkle(komut, kitap : Kitap) : void
+  }
+
+  class UyeRepository {
+    + Ekle(uye : Uye) : void
+    + Guncelle(uye : Uye) : void
+    + Sil(id : int) : void
+    + Getir(id : int) : Uye
+    + TumunuGetir() : List<Uye>
+    + AktifUyeler() : List<Uye>
+    + Ara(metin : string) : List<Uye>
+    - ParametreEkle(komut, uye : Uye) : void
+  }
+
+  class PersonelRepository {
+    + Ekle(personel : Personel) : void
+    + Guncelle(personel : Personel) : void
+    + Sil(id : int) : void
+    + Getir(id : int) : Personel
+    + TumunuGetir() : List<Personel>
+    + KullaniciAdiIleGetir(kullaniciAdi : string) : Personel
+    + Ara(metin : string) : List<Personel>
+    - ParametreEkle(komut, personel : Personel) : void
+  }
+
+  class OduncRepository {
+    - SecimSorgusu : string
+    + Ekle(odunc : OduncIslemi) : void
+    + Guncelle(odunc : OduncIslemi) : void
+    + Sil(id : int) : void
+    + Getir(id : int) : OduncIslemi
+    + TumunuGetir() : List<OduncIslemi>
+    + Ara(metin : string) : List<OduncIslemi>
+    + AktifOduncler() : List<OduncIslemi>
+    + GecikenOduncler() : List<OduncIslemi>
+    + UyeninAktifOduncSayisi(uyeId : int) : int
+    + IadeEt(id : int, iadeTarihi : DateTime) : void
+    + EnCokOkunanlar(adet : int) : List<KitapOkunma>
+    - Listele(sql : string, deger : object) : List<OduncIslemi>
+    - ParametreEkle(komut, odunc : OduncIslemi) : void
+  }
+
+  class CezaRepository {
+    - SecimSorgusu : string
+    + Ekle(ceza : Ceza) : void
+    + Guncelle(ceza : Ceza) : void
+    + Sil(id : int) : void
+    + Getir(id : int) : Ceza
+    + TumunuGetir() : List<Ceza>
+    + Ara(metin : string) : List<Ceza>
+    + OdenmemisCezalar() : List<Ceza>
+    + UyeninOdenmemisCezasi(uyeId : int) : decimal
+    + Ode(id : int) : void
+    - Listele(sql : string, deger : object) : List<Ceza>
+    - ParametreEkle(komut, ceza : Ceza) : void
+  }
+}
+
+package "Servisler" {
+  class GirisServisi {
+    + {static} AktifPersonel : Personel
+    - personelRepository : PersonelRepository
+    + GirisYap(kullaniciAdi : string, sifre : string) : bool
+    + CikisYap() : void
+  }
+
+  class OduncServisi {
+    + {static} MaksimumKitapSayisi : int = 3
+    + {static} OduncGunSayisi : int = 15
+    + {static} GunlukCezaTutari : decimal = 5
+    - kitapRepository : KitapRepository
+    - uyeRepository : UyeRepository
+    - oduncRepository : OduncRepository
+    - cezaRepository : CezaRepository
+    + OduncVer(kitapId : int, uyeId : int, personelId : int) : void
+    + IadeAl(oduncId : int) : decimal
+    + CezaHesapla(odunc : OduncIslemi, tarih : DateTime) : decimal
+  }
+
+  class RaporServisi {
+    - oduncRepository : OduncRepository
+    - cezaRepository : CezaRepository
+    + ToplamKitapSayisi() : int
+    + ToplamUyeSayisi() : int
+    + OduncteKitapSayisi() : int
+    + GecikenKitapSayisi() : int
+    + OdenmemisCezaToplami() : decimal
+    + GecikenKitaplar() : List<OduncIslemi>
+    + EnCokOkunanKitaplar() : List<KitapOkunma>
+  }
+}
+
+package "Formlar" {
+  class Form <<System.Windows.Forms>>
+
+  abstract class KayitForm {
+    # seciliId : int
+    # tablo : DataGridView
+    # txtAra : TextBox
+    - alanPaneli : TableLayoutPanel
+    - butonPaneli : FlowLayoutPanel
+    # {abstract} Listele(arama : string) : void
+    # {abstract} Ekle() : void
+    # {abstract} Guncelle() : void
+    # {abstract} Sil(id : int) : void
+    # {abstract} KayitYukle(id : int) : void
+    # MetinAlaniEkle(etiket : string) : TextBox
+    # SecimAlaniEkle(etiket : string) : ComboBox
+    # SayiAlaniEkle(etiket : string, enKucuk : int, enBuyuk : int) : NumericUpDown
+    # OnayAlaniEkle(etiket : string) : CheckBox
+    # TabloyaYukle(liste : object, gizlenecekKolonlar : string[]) : void
+    # ZorunluAlanKontrol(kutular : TextBox[]) : void
+    # Temizle() : void
+    # Yenile() : void
+    - AlanEkle(etiket : string, kontrol : Control) : void
+    - ButonEkle(yazi : string, renk : Color, tiklama : EventHandler) : void
+    - Islem(islem : Action, mesaj : string) : void
+    - SeciliIslem(islem : Action, mesaj : string) : void
+    - SilOnay() : void
+    - Tablo_CellClick(sender, e) : void
+  }
+
+  class KategoriForm {
+    - repository : KategoriRepository
+    - txtAd : TextBox
+    - txtAciklama : TextBox
+    # Listele(arama : string) : void
+    # Ekle() : void
+    # Guncelle() : void
+    # Sil(id : int) : void
+    # KayitYukle(id : int) : void
+    - FormdanAl() : Kategori
+  }
+
+  class YazarForm {
+    - repository : YazarRepository
+    - txtAd : TextBox
+    - txtSoyad : TextBox
+    - txtUlke : TextBox
+    - numDogumYili : NumericUpDown
+    # Listele(arama : string) : void
+    # Ekle() : void
+    # Guncelle() : void
+    # Sil(id : int) : void
+    # KayitYukle(id : int) : void
+    - FormdanAl() : Yazar
+  }
+
+  class YayineviForm {
+    - repository : YayineviRepository
+    - txtAd : TextBox
+    - txtTelefon : TextBox
+    - txtAdres : TextBox
+    # Listele(arama : string) : void
+    # Ekle() : void
+    # Guncelle() : void
+    # Sil(id : int) : void
+    # KayitYukle(id : int) : void
+    - FormdanAl() : Yayinevi
+  }
+
+  class KitapForm {
+    - repository : KitapRepository
+    - yazarRepository : YazarRepository
+    - kategoriRepository : KategoriRepository
+    - yayineviRepository : YayineviRepository
+    - txtIsbn : TextBox
+    - txtAd : TextBox
+    - cmbYazar : ComboBox
+    - cmbKategori : ComboBox
+    - cmbYayinevi : ComboBox
+    - numBasimYili : NumericUpDown
+    - numSayfa : NumericUpDown
+    - numStok : NumericUpDown
+    - txtRafNo : TextBox
+    - SecimleriDoldur() : void
+    # Listele(arama : string) : void
+    # Ekle() : void
+    # Guncelle() : void
+    # Sil(id : int) : void
+    # KayitYukle(id : int) : void
+    - Kontrol() : void
+    - FormdanAl() : Kitap
+  }
+
+  class UyeForm {
+    - repository : UyeRepository
+    - txtTcNo : TextBox
+    - txtAd : TextBox
+    - txtSoyad : TextBox
+    - txtTelefon : TextBox
+    - txtEposta : TextBox
+    - txtAdres : TextBox
+    - chkAktif : CheckBox
+    # Listele(arama : string) : void
+    # Ekle() : void
+    # Guncelle() : void
+    # Sil(id : int) : void
+    # KayitYukle(id : int) : void
+    # Temizle() : void
+    - Kontrol() : void
+    - FormdanAl() : Uye
+  }
+
+  class PersonelForm {
+    - repository : PersonelRepository
+    - txtTcNo : TextBox
+    - txtAd : TextBox
+    - txtSoyad : TextBox
+    - txtTelefon : TextBox
+    - txtEposta : TextBox
+    - txtKullaniciAdi : TextBox
+    - txtSifre : TextBox
+    - cmbRol : ComboBox
+    # Listele(arama : string) : void
+    # Ekle() : void
+    # Guncelle() : void
+    # Sil(id : int) : void
+    # KayitYukle(id : int) : void
+    - Kontrol() : void
+    - FormdanAl() : Personel
+  }
+
+  class OduncForm {
+    - oduncServisi : OduncServisi
+    - oduncRepository : OduncRepository
+    - uyeRepository : UyeRepository
+    - kitapRepository : KitapRepository
+    - cmbUye : ComboBox
+    - cmbKitap : ComboBox
+    - txtAra : TextBox
+    - chkTumu : CheckBox
+    - tablo : DataGridView
+    - Etiket(yazi : string) : Label
+    - Yenile() : void
+    - Listele() : void
+    - BtnOduncVer_Click(sender, e) : void
+    - BtnIadeAl_Click(sender, e) : void
+    - Tablo_CellFormatting(sender, e) : void
+  }
+
+  class CezaForm {
+    - cezaRepository : CezaRepository
+    - txtAra : TextBox
+    - chkOdenmemis : CheckBox
+    - lblToplam : Label
+    - tablo : DataGridView
+    - Listele() : void
+    - BtnOde_Click(sender, e) : void
+  }
+
+  class RaporForm {
+    - raporServisi : RaporServisi
+    - tabloGeciken : DataGridView
+    - tabloEnCok : DataGridView
+    - lblOzet : Label
+    - {static} TabloOlustur() : DataGridView
+    - RaporlariYukle() : void
+  }
+
+  class GirisForm {
+    - girisServisi : GirisServisi
+    - txtKullaniciAdi : TextBox
+    - txtSifre : TextBox
+    - BtnGiris_Click(sender, e) : void
+  }
+
+  class AnaForm {
+    - raporServisi : RaporServisi
+    - lblKitap : Label
+    - lblUye : Label
+    - lblOdunc : Label
+    - lblGeciken : Label
+    - {static} OzetKutusu(renk : Color) : Label
+    - MenuButonu(yazi : string, formOlustur : Func<Form>) : Button
+    - FormAc(form : Form) : void
+    - OzetiYenile() : void
+  }
+}
+
+class Program <<static>> {
+  - {static} Main() : void
+}
+
+Kisi <|-- Uye
+Kisi <|-- Personel
+
+Kitap "0..*" --> "1" Yazar : yazar
+Kitap "0..*" --> "1" Kategori : kategori
+Kitap "0..*" --> "1" Yayinevi : yayınevi
+OduncIslemi "0..*" --> "1" Kitap : ödünç alınan
+OduncIslemi "0..*" --> "1" Uye : alan üye
+OduncIslemi "0..*" --> "1" Personel : işlemi yapan
+Ceza "0..1" --> "1" OduncIslemi : gecikme
+Ceza "0..*" --> "1" Uye : cezalı üye
+
+IRepository <|.. KategoriRepository : <<bind>> T=Kategori
+IRepository <|.. YazarRepository : <<bind>> T=Yazar
+IRepository <|.. YayineviRepository : <<bind>> T=Yayinevi
+IRepository <|.. KitapRepository : <<bind>> T=Kitap
+IRepository <|.. UyeRepository : <<bind>> T=Uye
+IRepository <|.. PersonelRepository : <<bind>> T=Personel
+IRepository <|.. OduncRepository : <<bind>> T=OduncIslemi
+IRepository <|.. CezaRepository : <<bind>> T=Ceza
+
+KategoriRepository ..> Veritabani
+YazarRepository ..> Veritabani
+YayineviRepository ..> Veritabani
+KitapRepository ..> Veritabani
+UyeRepository ..> Veritabani
+PersonelRepository ..> Veritabani
+OduncRepository ..> Veritabani
+CezaRepository ..> Veritabani
+OduncRepository ..> KitapOkunma : üretir
+
+GirisServisi *-- PersonelRepository
+GirisServisi --> Personel : AktifPersonel
+OduncServisi *-- KitapRepository
+OduncServisi *-- UyeRepository
+OduncServisi *-- OduncRepository
+OduncServisi *-- CezaRepository
+RaporServisi *-- OduncRepository
+RaporServisi *-- CezaRepository
+RaporServisi ..> Veritabani
+
+Form <|-- KayitForm
+KayitForm <|-- KategoriForm
+KayitForm <|-- YazarForm
+KayitForm <|-- YayineviForm
+KayitForm <|-- KitapForm
+KayitForm <|-- UyeForm
+KayitForm <|-- PersonelForm
+Form <|-- OduncForm
+Form <|-- CezaForm
+Form <|-- RaporForm
+Form <|-- GirisForm
+Form <|-- AnaForm
+
+KategoriForm *-- KategoriRepository
+YazarForm *-- YazarRepository
+YayineviForm *-- YayineviRepository
+KitapForm *-- KitapRepository
+KitapForm *-- YazarRepository
+KitapForm *-- KategoriRepository
+KitapForm *-- YayineviRepository
+UyeForm *-- UyeRepository
+PersonelForm *-- PersonelRepository
+OduncForm *-- OduncServisi
+OduncForm *-- OduncRepository
+OduncForm *-- UyeRepository
+OduncForm *-- KitapRepository
+CezaForm *-- CezaRepository
+RaporForm *-- RaporServisi
+GirisForm *-- GirisServisi
+AnaForm *-- RaporServisi
+AnaForm ..> KategoriForm : açar
+AnaForm ..> YazarForm : açar
+AnaForm ..> YayineviForm : açar
+AnaForm ..> KitapForm : açar
+AnaForm ..> UyeForm : açar
+AnaForm ..> PersonelForm : açar
+AnaForm ..> OduncForm : açar
+AnaForm ..> CezaForm : açar
+AnaForm ..> RaporForm : açar
+
+Program ..> Veritabani : bağlantı testi
+Program ..> GirisForm : başlatır
+Program ..> AnaForm : başlatır
+@enduml

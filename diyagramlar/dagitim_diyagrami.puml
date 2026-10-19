@@ -1,0 +1,47 @@
+@startuml dagitim_diyagrami
+title Kütüphane Otomasyonu - Dağıtım (Deployment) Diyagramı
+skinparam dpi 150
+left to right direction
+
+actor "Kütüphane Personeli\n(Yönetici / Görevli)" as kullanici
+
+node "Kullanıcı Bilgisayarı\n<<device>>\nWindows 10/11" as pc {
+  node ".NET 10 Desktop Runtime\n<<execution environment>>" as runtime {
+    artifact "KutuphaneOtomasyonu.exe\n<<Windows Forms>>" as exe
+    artifact "Npgsql.dll\n<<PostgreSQL sürücüsü>>" as npgsql
+    component "Formlar\n(GirisForm, AnaForm, KitapForm,\nUyeForm, OduncForm, CezaForm,\nRaporForm, ...)" as formlar
+    component "Servisler\n(GirisServisi, OduncServisi,\nRaporServisi)" as servisler
+    component "Veri\n(Veritabani, *Repository)" as veri
+  }
+}
+
+node "Veritabanı Sunucusu\n<<device>>\n(aynı bilgisayar veya ağdaki sunucu)" as sunucu {
+  node "Docker Engine\n<<execution environment>>" as docker {
+    node "kutuphane_db\n<<container>>\nimage: postgres:16" as container {
+      database "PostgreSQL 16\nveritabanı: kutuphane" as pg {
+        artifact "kategoriler" as t1
+        artifact "yazarlar" as t2
+        artifact "yayinevleri" as t3
+        artifact "kitaplar" as t4
+        artifact "uyeler" as t5
+        artifact "personeller" as t6
+        artifact "odunc_islemleri" as t7
+        artifact "cezalar" as t8
+      }
+    }
+    storage "kutuphane_veri\n<<docker volume>>" as volume
+  }
+  artifact "docker-compose.yml" as compose
+  artifact "veritabani/init.sql" as initsql
+}
+
+kullanici --> pc : klavye / fare
+exe ..> formlar
+formlar ..> servisler
+servisler ..> veri
+veri ..> npgsql
+npgsql --> container : TCP/IP\nlocalhost:5433 → 5432\n(PostgreSQL protokolü)
+container --> volume : veri kalıcılığı\n/var/lib/postgresql/data
+compose ..> container : <<deploy>>
+initsql ..> pg : ilk açılışta\ntablolar + örnek veri
+@enduml

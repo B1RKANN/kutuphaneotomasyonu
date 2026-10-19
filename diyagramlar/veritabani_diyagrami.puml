@@ -1,0 +1,102 @@
+@startuml veritabani_diyagrami
+title Kütüphane Otomasyonu - Veritabanı (ER) Diyagramı
+skinparam dpi 150
+hide circle
+skinparam linetype ortho
+
+entity "kategoriler" as kategoriler {
+  * id : SERIAL <<PK>>
+  --
+  * ad : VARCHAR(100)
+  aciklama : VARCHAR(250)
+}
+
+entity "yazarlar" as yazarlar {
+  * id : SERIAL <<PK>>
+  --
+  * ad : VARCHAR(100)
+  * soyad : VARCHAR(100)
+  ulke : VARCHAR(100)
+  dogum_yili : INT
+}
+
+entity "yayinevleri" as yayinevleri {
+  * id : SERIAL <<PK>>
+  --
+  * ad : VARCHAR(150)
+  telefon : VARCHAR(20)
+  adres : VARCHAR(250)
+}
+
+entity "kitaplar" as kitaplar {
+  * id : SERIAL <<PK>>
+  --
+  * isbn : VARCHAR(20) <<UNIQUE>>
+  * ad : VARCHAR(200)
+  * yazar_id : INT <<FK>>
+  * kategori_id : INT <<FK>>
+  * yayinevi_id : INT <<FK>>
+  basim_yili : INT
+  sayfa_sayisi : INT
+  * stok : INT
+  * mevcut : INT
+  raf_no : VARCHAR(20)
+}
+
+entity "uyeler" as uyeler {
+  * id : SERIAL <<PK>>
+  --
+  * tc_no : VARCHAR(11) <<UNIQUE>>
+  * ad : VARCHAR(100)
+  * soyad : VARCHAR(100)
+  telefon : VARCHAR(20)
+  eposta : VARCHAR(150)
+  adres : VARCHAR(250)
+  * kayit_tarihi : DATE
+  * aktif : BOOLEAN
+}
+
+entity "personeller" as personeller {
+  * id : SERIAL <<PK>>
+  --
+  * tc_no : VARCHAR(11) <<UNIQUE>>
+  * ad : VARCHAR(100)
+  * soyad : VARCHAR(100)
+  telefon : VARCHAR(20)
+  eposta : VARCHAR(150)
+  * kullanici_adi : VARCHAR(50) <<UNIQUE>>
+  * sifre : VARCHAR(50)
+  * rol : VARCHAR(20)
+}
+
+entity "odunc_islemleri" as odunc {
+  * id : SERIAL <<PK>>
+  --
+  * kitap_id : INT <<FK>>
+  * uye_id : INT <<FK>>
+  * personel_id : INT <<FK>>
+  * odunc_tarihi : DATE
+  * son_teslim_tarihi : DATE
+  iade_tarihi : DATE
+}
+
+entity "cezalar" as cezalar {
+  * id : SERIAL <<PK>>
+  --
+  * odunc_id : INT <<FK>>
+  * uye_id : INT <<FK>>
+  * gecikme_gunu : INT
+  * tutar : NUMERIC(10,2)
+  * odendi : BOOLEAN
+  odeme_tarihi : DATE
+}
+
+yazarlar ||--o{ kitaplar
+kategoriler ||--o{ kitaplar
+yayinevleri ||--o{ kitaplar
+kitaplar ||--o{ odunc
+uyeler ||--o{ odunc
+personeller ||--o{ odunc
+odunc ||--o| cezalar
+uyeler ||--o{ cezalar
+@enduml

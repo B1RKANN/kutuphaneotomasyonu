@@ -1,0 +1,17 @@
+﻿services:
+  postgres:
+    image: postgres:16
+    container_name: kutuphane_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: kutuphane
+      POSTGRES_USER: kutuphane
+      POSTGRES_PASSWORD: kutuphane123
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./veritabani/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - kutuphane_veri:/var/lib/postgresql/data
+
+volumes:
+  kutuphane_veri:
